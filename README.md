@@ -63,7 +63,7 @@ Items marked `***` are profitable to craft and instasell at current Bazaar price
 
 ## Caveats
 
-1. Prices are a snapshot at the time of the API call — the Bazaar moves fast
+1. Prices are a snapshot at the time of the API call
 2. Hypixel applies a 1% tax on instasell orders which reduces real profit
 3. High-profit items may have low daily volume, making it difficult to realise the full profit from crafting them
 4. Recipe data is sourced from the community NEU repo and may not immediately reflect newly released items
