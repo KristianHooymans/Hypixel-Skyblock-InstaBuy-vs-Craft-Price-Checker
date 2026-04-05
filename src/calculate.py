@@ -21,7 +21,7 @@ def find_opportunities(recipes: dict, prices: dict) -> list[dict]:
 
     for item_id in all_craftable(recipes):
         cost = craft_cost(item_id, recipes, prices)
-        if cost is None:
+        if cost is None or cost == 0.0:
             continue
 
         if item_id not in prices:
