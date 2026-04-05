@@ -2,37 +2,64 @@ from bazaar import fetch_bazaar, get_prices
 from recipies import fetch_recipes, all_craftable, get_recipe
 
 
-def craft_cost(item_id: str, recipes: dict, prices: dict) -> float | None:
+def best_cost(item_id: str, recipes: dict, prices: dict, visiting: set) -> float | None:
+    if item_id in visiting:
+        return prices.get(item_id, {}).get("insta_buy")
+
+    bazaar_price = prices.get(item_id, {}).get("insta_buy")
     recipe = get_recipe(item_id, recipes)
+
     if recipe is None:
-        return None
+        return bazaar_price
 
-    total = 0.0
+    visiting.add(item_id)
+    craft_total = 0.0
     for ingredient_id, quantity in recipe.items():
-        if ingredient_id not in prices:
-            return None
-        total += prices[ingredient_id]["insta_buy"] * quantity
+        ingredient_cost = best_cost(ingredient_id, recipes, prices, visiting)
+        if ingredient_cost is None:
+            craft_total = None
+            break
+        craft_total += ingredient_cost * quantity
+    visiting.discard(item_id)
 
-    return total
+    if craft_total is None:
+        return bazaar_price
+    if bazaar_price is None:
+        return craft_total
+    return min(craft_total, bazaar_price)
 
 
 def find_opportunities(recipes: dict, prices: dict) -> list[dict]:
     results = []
 
     for item_id in all_craftable(recipes):
-        cost = craft_cost(item_id, recipes, prices)
-        if cost is None or cost == 0.0:
+        recipe = get_recipe(item_id, recipes)
+        if recipe is None:
+            continue
+
+        visiting = set()
+        visiting.add(item_id)
+        craft_total = 0.0
+        valid = True
+        for ingredient_id, quantity in recipe.items():
+            cost = best_cost(ingredient_id, recipes, prices, visiting)
+            if cost is None:
+                valid = False
+                break
+            craft_total += cost * quantity
+
+        if not valid or craft_total == 0.0:
             continue
 
         if item_id not in prices:
             continue
 
         sell_price = prices[item_id]["insta_sell"]
-        profit = sell_price - cost
+        profit = sell_price - craft_total
 
         results.append({
             "item":       item_id,
-            "craft_cost": cost,
+            "craft_cost": craft_total,
             "sell_price": sell_price,
             "profit":     profit,
         })
