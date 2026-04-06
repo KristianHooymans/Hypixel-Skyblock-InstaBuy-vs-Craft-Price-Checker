@@ -1,5 +1,6 @@
 from bazaar import fetch_bazaar, get_prices
 from recipies import fetch_recipes, all_craftable, get_recipe
+import argparse
 
 
 def best_cost(item_id: str, recipes: dict, prices: dict, visiting: set) -> float | None:
@@ -31,6 +32,7 @@ def best_cost(item_id: str, recipes: dict, prices: dict, visiting: set) -> float
 
 def find_opportunities(recipes: dict, prices: dict) -> list[dict]:
     results = []
+    TAX = 0.99
 
     for item_id in all_craftable(recipes):
         recipe = get_recipe(item_id, recipes)
@@ -55,7 +57,7 @@ def find_opportunities(recipes: dict, prices: dict) -> list[dict]:
             continue
 
         sell_price = prices[item_id]["insta_sell"]
-        profit = sell_price - craft_total
+        profit = (sell_price * TAX) - craft_total
 
         results.append({
             "item":       item_id,
@@ -69,7 +71,7 @@ def find_opportunities(recipes: dict, prices: dict) -> list[dict]:
 
 
 def display(results: list[dict]) -> None:
-    header = f"{'Item':<40} {'Craft Cost':>14} {'Sell Price':>14} {'Profit':>14}"
+    header = f"{'Item':<40} {'Craft Cost':>14} {'Sell Price (after tax)':>14} {'Profit':>2}"
     print(header)
     print("-" * len(header))
     for r in results:
@@ -78,12 +80,18 @@ def display(results: list[dict]) -> None:
             f"{r['item']:<40}"
             f"{r['craft_cost']:>14,.1f}"
             f"{r['sell_price']:>14,.1f}"
-            f"{r['profit']:>14,.1f}"
+            f"{r['profit']:>2,.1f}"
             f"{marker}"
         )
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Hypixel Bazaar Crafting EV Optimiser")
+    parser.add_argument("--refresh", action="store_true", help="Force re-download of NEU recipe cache")
+    args = parser.parse_args()
+
+    recipies = fetch_recipes(force_refresh=args.refresh)
+
     print("Fetching bazaar prices...")
     prices = get_prices(fetch_bazaar())
 

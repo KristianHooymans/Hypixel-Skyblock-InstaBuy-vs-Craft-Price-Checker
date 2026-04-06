@@ -40,15 +40,14 @@ python3 calculate.py
 
 On the first run, the tool downloads the NEU recipe database (~20MB) and caches it locally as `neu_recipes_cache.json`. Subsequent runs load from the cache instantly. To force a refresh of the recipe data:
 
-```python
-from recipies import fetch_recipes
-fetch_recipes(force_refresh=True)
+```bash
+python3 calculate.py --refresh
 ```
 
 ## Example output
 
 ```
-Item                                         Craft Cost     Sell Price         Profit
+Item                                         Craft Cost   Sell Price (after tax)  Profit
 -------------------------------------------------------------------------------------
 METEOR_SHARD                                 550,032.9     702,000.8     151,967.9 ***
 HORNS_OF_TORMENT                             260,320.9     286,509.7      26,188.8 ***
@@ -63,14 +62,12 @@ Items marked `***` are profitable to craft and instasell at current Bazaar price
 
 ## Caveats
 
-1. Prices are a snapshot at the time of the API call
-2. Hypixel applies a 1% tax on instasell orders which reduces real profit
+1. Prices are a snapshot at the time of the API call — the Bazaar moves fast
+2. Profit figures are now tax-adjusted (1% Hypixel instasell fee applied)
 3. High-profit items may have low daily volume, making it difficult to realise the full profit from crafting them
 4. Recipe data is sourced from the community NEU repo and may not immediately reflect newly released items
 
 ## Planned improvements
 
 1. Volume filtering to surface only items with meaningful daily sell volume
-2. Tax-adjusted profit calculation
-3. `--refresh` flag to force a recipe cache update from the command line
-4. Automatic price refresh loop for continuous monitoring
+2. Automatic price refresh loop for continuous monitoring
