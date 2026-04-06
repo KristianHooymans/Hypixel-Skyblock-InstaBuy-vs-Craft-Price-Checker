@@ -71,7 +71,7 @@ def find_opportunities(recipes: dict, prices: dict) -> list[dict]:
 
 
 def display(results: list[dict]) -> None:
-    header = f"{'Item':<40} {'Craft Cost':>14} {'Sell Price (after tax)':>14} {'Profit':>2}"
+    header = f"{'Item':<40} {'Craft Cost':>14} {'Sell Price (taxed)':>14} {'Profit':>2}"
     print(header)
     print("-" * len(header))
     for r in results:
@@ -80,7 +80,7 @@ def display(results: list[dict]) -> None:
             f"{r['item']:<40}"
             f"{r['craft_cost']:>14,.1f}"
             f"{r['sell_price']:>14,.1f}"
-            f"{r['profit']:>2,.1f}"
+            f"{r['profit']:>14,.1f}"
             f"{marker}"
         )
 
